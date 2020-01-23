@@ -10,6 +10,7 @@ import osmnx as ox
 home = [50.730275, -3.518295]
 point_n = 5
 point_sep = 1000 #points are 1km apart (atcf?)
+snap_to_OSM = True
 
 def generate_points(point_n, point_sep, home):
     """
@@ -37,7 +38,7 @@ def generate_points(point_n, point_sep, home):
 
     return points
 
-def process_with_OSM(points):
+def process_with_OSM(points, snap_to_OSM):
     """
     This function does some post-processing using Open Street Map data to affix
     points to ways, and to determine and measure the shortest routes between
@@ -102,11 +103,14 @@ def process_with_OSM(points):
 
         return route
 
-    graph = _get_network(points)
-    points, nodes = _snap_points_to_ways(graph, points)
-    route = _calculate_route(graph, nodes)
+    if snap_to_OSM:
+        graph = _get_network(points)
+        points, nodes = _snap_points_to_ways(graph, points)
+        route = _calculate_route(graph, nodes)
+        return points, route
 
-    return points, route
+    else:
+        return points, []
 
 def generate_map(points, route):
     """
@@ -135,15 +139,16 @@ def generate_map(points, route):
     )
 
     # Route between points is marked on the map
-    fg_route = folium.FeatureGroup(name="Route")
-    folium.vector_layers.PolyLine(
-        route,
-        tooltip="Route",
-        smooth_factor = 0,
-        color="purple",
-        opacity=0.5
-    ).add_to(fg_route)
-    fg_route.add_to(m)
+    if snap_to_OSM:
+        fg_route = folium.FeatureGroup(name="Route")
+        folium.vector_layers.PolyLine(
+            route,
+            tooltip="Route",
+            smooth_factor = 0,
+            color="purple",
+            opacity=0.5
+        ).add_to(fg_route)
+        fg_route.add_to(m)
 
     # Show LayerControl on map
     folium.LayerControl().add_to(m)
@@ -172,7 +177,7 @@ app = Flask(__name__)
 
 def index():
     points = generate_points(point_n, point_sep, home)
-    points, route = process_with_OSM(points)
+    points, route = process_with_OSM(points, snap_to_OSM)
     m = generate_map(points, route)
     return m._repr_html_()
 
