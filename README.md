@@ -24,7 +24,20 @@ This script uses a few external libraries that you'll need. At some point I will
 2. Clone or download this repository
 3. Navigate to it in your command prompt/terminal and run `python .\corgi.py`
 
-The different options are currently all hard coded into the script. My next improvement will be to take these as command line arguments, but for the moment you'll have to modify the code to change your home location and other defaults.
+This will start a flask server that hosts the project. You can then naviate to `http://127.0.0.1:5000/` in your web browser to see the map.
+
+### Options
+You can modify a number of options used to generate the map. These are currently passed as named parameters in the URL; for example `http://127.0.0.1:5000/?lat=54.27073&lon=-3.21115&snap=False`. The options available are:
+
+| Named parameter | Valid options (*default*) | Description |
+| --- | --- | --- |
+| `snap` | *`true`*/`false` | Whether or not the points generated should be snapped onto the nearest navigable way (e.g. path/road)|
+| `lat` | Float ±90 e.g. *`50.730275`* | Home (first/last point location) latitude in degrees |
+| `lon` | Float ±180 e.g. *`-3.518295`* | Home longitude in degrees |
+| `n` | Positive integer e.g. *`5`*| The number of points to run to (excluding home) marked on the map |
+| `sep` | Positive integer e.g. *`1000`* | The max separation in meters between points generated. |
+
+**N.b.** when `snap` is True the points are generated and then snapped to the nearest way marked on OSM. As such the separation between points may then exceed the desired `sep` value.
 
 ## Can I contribute?
 Yes please. Make a pull request if you make any improvements.

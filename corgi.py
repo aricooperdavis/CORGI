@@ -1,5 +1,5 @@
 # Circular Orienteering Route Generation Interface
-from flask import Flask
+from flask import Flask, request
 from geopy import distance, Point
 from random import random
 
@@ -112,7 +112,7 @@ def process_with_OSM(points, snap_to_OSM):
     else:
         return points, []
 
-def generate_map(points, route):
+def generate_map(points, route, snap_to_OSM):
     """
     Function generates a folium map with markers at each tuple given in points.
     """
@@ -176,9 +176,21 @@ app = Flask(__name__)
 @app.route('/')
 
 def index():
-    points = generate_points(point_n, point_sep, home)
+    # Parse URL argument requests
+    snap_to_OSM = request.args.get('snap', default='true', type=str)
+    if snap_to_OSM.lower() == 'false':
+        snap_to_OSM = False
+    else:
+        snap_to_OSM = True
+    lat = request.args.get('lat', default=50.730275, type=float)
+    lon = request.args.get('lon', default=-3.518295, type=float)
+    point_n = request.args.get('n', default=5, type=int)
+    ponit_sep = request.args.get('sep', default=1000, type=int)
+
+    # Generate appropraite map
+    points = generate_points(point_n, point_sep, [lat, lon])
     points, route = process_with_OSM(points, snap_to_OSM)
-    m = generate_map(points, route)
+    m = generate_map(points, route, snap_to_OSM)
     return m._repr_html_()
 
 if __name__ == "__main__":
