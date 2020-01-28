@@ -1,0 +1,49 @@
+<html>
+
+  <head>
+    <title>CORGI</title>
+  </head>
+
+  <body>
+      <div style="height: 100%; width: 75%; float: left;">
+        {{htmlmap}}
+      </div>
+      <div style="height: 100%; width: 24%; float: right; overflow-x: hidden; border: 1% solid transparent;">
+        <h3>CORGI: the Circular Orienteering Route Generation Interface</h3>
+        <p>Modify the parameters below to generate a randomised circular orienteering route to suit your needs.</p>
+        <p>Can you see a way to improve this tool? Get involed by <a href="https://github.com/aricooperdavis/CORGI">contributing to the code</a>.</p>
+        <form action="" method="post">
+          <p>
+            <label for="lat">Latitude: </label>
+            <input type="text" name="lat" value={{lat}}>
+          </p>
+          <p>
+            <label for="lon">Longitude: </label>
+            <input type="text" name="lon" value={{lon}}>
+          </p>
+          <p>
+            <label for="n">Number of points: </label>
+            <input type="number" name="n" value={{n}}>
+          </p>
+          <p>
+            <label for="sep">Distance between points (m): </label>
+            <input type="number" name="sep" value={{sep}}>
+          </p>
+          <p>
+            <label for="snap">Snap to paths/roads? </label>
+            {% if snap == 'on' %}
+            <input type="checkbox" name="snap" checked>
+            {% else %}
+            <input type="checkbox" name="snap">
+            {% endif %}
+          </p>
+          <p>
+            <input type="submit">
+          </p>
+        </form>
+        <p><i>This tool is hosted on a RaspberryPi Flask server, so please be patient with it - it's doing its best!</i></p>
+    </div>
+
+  </body>
+
+</html>

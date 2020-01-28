@@ -1,16 +1,10 @@
-# Circular Orienteering Route Generation Interface
-from flask import Flask, request
+from flask import Flask, Markup, render_template, request
 from geopy import distance, Point
 from random import random
 
 import folium
 import networkx as nx
 import osmnx as ox
-
-home = [50.730275, -3.518295]
-point_n = 5
-point_sep = 1000 #points are 1km apart (atcf?)
-snap_to_OSM = True
 
 def generate_points(point_n, point_sep, home):
     """
@@ -173,25 +167,35 @@ def generate_map(points, route, snap_to_OSM):
     return m
 
 app = Flask(__name__)
-@app.route('/')
-
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    # Parse URL argument requests
-    snap_to_OSM = request.args.get('snap', default='true', type=str)
-    if snap_to_OSM.lower() == 'false':
-        snap_to_OSM = False
-    else:
-        snap_to_OSM = True
-    lat = request.args.get('lat', default=50.730275, type=float)
-    lon = request.args.get('lon', default=-3.518295, type=float)
-    point_n = request.args.get('n', default=5, type=int)
-    ponit_sep = request.args.get('sep', default=1000, type=int)
+    """
+    Function is run when the index page is GET or POST requested
+    """
 
-    # Generate appropraite map
-    points = generate_points(point_n, point_sep, [lat, lon])
-    points, route = process_with_OSM(points, snap_to_OSM)
-    m = generate_map(points, route, snap_to_OSM)
-    return m._repr_html_()
+    attributes = {'lat': 50.730275, 'lon': -3.518295, 'n': 5, 'sep': 1000, 'snap': 'on'}
+
+    # Process changes to attributes given in POST request
+    if request.method == 'POST':
+        for key in attributes:
+            if request.form.get(key) != '':
+                if key == 'snap':
+                    attributes[key] = request.form.get(key)
+                elif (key == 'n' or key == 'sep'):
+                    attributes[key] = int(request.form.get(key))
+                else:
+                    attributes[key] = float(request.form.get(key))
+
+    # Continue with loading map
+    points = generate_points(attributes['n'], attributes['sep'], [attributes['lat'], attributes['lon']])
+    points, route = process_with_OSM(points, (attributes['snap'] == 'on'))
+    m = generate_map(points, route, (attributes['snap'] == 'on'))
+
+    # Save string represetation for adding to template
+    htmlmap = m._repr_html_()
+
+    # Add map to template and render
+    return render_template('index.html', lat=attributes['lat'], lon=attributes['lon'], n=attributes['n'], sep=attributes['sep'], snap=attributes['snap'], htmlmap=Markup(htmlmap))
 
 if __name__ == "__main__":
     app.run(debug=True)
