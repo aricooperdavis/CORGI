@@ -24,7 +24,7 @@ This script uses a few external libraries that you'll need. At some point I will
 2. Clone or download this repository
 3. Navigate to it in your command prompt/terminal and run `python .\corgi.py`
 
-This will start a flask server that hosts the project. You can then naviate to `http://127.0.0.1:5000/` in your web browser to see the map.
+This will start a flask server that hosts the project. You can then navigate to `http://127.0.0.1:5000/` in your web browser to see the map.
 
 ### Options
 You can modify a number of options used to generate the map using the form on the right hand side of the map. The options available are:
